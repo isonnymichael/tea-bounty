@@ -12,10 +12,11 @@ jobs:
     
     steps:
       - name: Send TEA Reward
-        uses: yourusername/tea-bounty-action@v1
+        uses: isonnymichael/tea-bounty-action@v1
         with:
-          # Amount of TEA tokens to send
-          tea_amount: '100'
+          # Bounty amount is extracted from the linked issue's "tea-reward: X" pattern
+          # You can optionally set a fallback amount here:
+          # tea_amount: '100'
           
           # Tea Protocol RPC URL (use a secret for production)
           rpc_url: ${{ secrets.RPC_URL }}

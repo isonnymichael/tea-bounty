@@ -7,8 +7,8 @@ branding:
 
 inputs:
   tea_amount:
-    description: 'Amount of TEA tokens to send as reward'
-    required: true
+    description: 'Fallback amount of TEA tokens if no bounty specified in linked issue'
+    required: false
   rpc_url:
     description: 'Tea Protocol RPC URL'
     required: true

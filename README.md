@@ -7,6 +7,7 @@ A minimal, opt-in GitHub Action that automatically sends TEA token rewards when 
 
 ## Features
 
+✅ **Dynamic bounty amounts** - Extract reward amounts from linked issues  
 ✅ Automatically sends TEA tokens when PRs are merged  
 ✅ Anti-double-payout protection (checks labels + comments)  
 ✅ Configurable reward amounts with hard cap (default: 1,000 TEA)  
@@ -20,6 +21,8 @@ A minimal, opt-in GitHub Action that automatically sends TEA token rewards when 
 In your repository settings, add these secrets:
 
 - `TEA_PRIVATE_KEY` - Private key of your hot wallet (⚠️ use a wallet with LIMITED balance)
+- `RPC_URL` - Tea Protocol RPC URL
+- `BLOCK_EXPLORER_URL` - (Optional) Block explorer URL for transaction links
 - `GITHUB_TOKEN` - Automatically provided by GitHub Actions
 
 ### 2. Create Workflow File
@@ -41,10 +44,9 @@ jobs:
     
     steps:
       - name: Send TEA Reward
-        uses: yourusername/tea-bounty-action@v1
+        uses: isonnymichael/tea-bounty-action@v1
         with:
-          tea_amount: '100'
-          rpc_url: ${{ secrets.RPC_URL }} # Tea Protocol RPC URL
+          rpc_url: ${{ secrets.RPC_URL }}
           target_branch: 'main'
           max_reward_cap: '1000'
           block_explorer_url: ${{ secrets.BLOCK_EXPLORER_URL }} # Optional
@@ -53,24 +55,39 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### 3. Contributors Add Wallet Address
+### 3. Create Issue with Bounty
 
-Contributors must add their wallet address to the PR description:
+Create an issue and specify the bounty amount in the description:
 
+```markdown
+## Issue
+Fix login bug
+
+tea-reward: 75
 ```
-## Description
-This PR adds a new feature...
 
-TEA Wallet: 0x1234567890123456789012345678901234567890
+The pattern is case-insensitive: `tea-reward: X` where X is the amount in TEA tokens.
+
+### 4. Contributors Create PR
+
+Contributors must:
+1. Link the issue using `Closes #X`, `Fixes #X`, or `Resolves #X` in the PR description
+2. Add their wallet address in the PR description
+
+```markdown
+## PR Description
+Fix login bug
+
+Closes #42
+
+TEA Wallet: 0xABC1234567890123456789012345678901234567
 ```
-
-The pattern is case-insensitive: `TEA Wallet: 0x...`
 
 ## Configuration
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `tea_amount` | ✅ Yes | - | Amount of TEA tokens to send |
+| `tea_amount` | No | - | Fallback amount if no bounty in linked issue |
 | `rpc_url` | ✅ Yes | - | Tea Protocol RPC URL |
 | `target_branch` | No | `main` | Only reward PRs merged into this branch |
 | `max_reward_cap` | No | `1000` | Maximum allowed reward (safety limit) |
@@ -81,16 +98,19 @@ The pattern is case-insensitive: `TEA Wallet: 0x...`
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `TEA_PRIVATE_KEY` | ✅ Yes | Private key of hot wallet (from GitHub Secrets) |
+| `RPC_URL` | ✅ Yes | Tea Protocol RPC URL (from GitHub Secrets) |
+| `BLOCK_EXPLORER_URL` | No | Block explorer URL for transaction links (from GitHub Secrets) |
 | `GITHUB_TOKEN` | ✅ Yes | Automatically provided by GitHub Actions |
 
 ## How It Works
 
 1. **Trigger**: Action runs when a PR is closed
 2. **Validation**: Checks if PR was merged (not just closed) and targets the correct branch
-3. **Wallet Extraction**: Extracts wallet address from PR body using pattern `TEA Wallet: 0x...`
-4. **Double-Payout Check**: Verifies PR doesn't have `tea-paid` label or reward comment
-5. **Transfer**: Sends TEA tokens using ethers.js
-6. **Confirmation**: Posts comment with transaction hash and adds `tea-paid` label
+3. **Bounty Extraction**: Extracts bounty amount from linked issue's `tea-reward: X` pattern
+4. **Wallet Extraction**: Extracts wallet address from PR body using pattern `TEA Wallet: 0x...`
+5. **Double-Payout Check**: Verifies PR doesn't have `tea-paid` label or reward comment
+6. **Transfer**: Sends TEA tokens using ethers.js
+7. **Confirmation**: Posts comment with transaction hash and adds `tea-paid` label
 
 ## Security Model
 

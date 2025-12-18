@@ -13,6 +13,7 @@ import { extractWalletAddress } from './wallet';
 import { hasAlreadyBeenPaid } from './anti-double-payout';
 import { sendTeaTokens } from './transfer';
 import { postRewardComment, addPaidLabel } from './github-integration';
+import { getBountyAmountFromIssue } from './bounty-extractor';
 
 async function run(): Promise<void> {
     try {
@@ -56,9 +57,9 @@ async function run(): Promise<void> {
         // 2. GET INPUTS AND VALIDATE
         // ========================================
 
-        const teaAmount = parseFloat(core.getInput('tea_amount', { required: true }));
         const rpcUrl = core.getInput('rpc_url', { required: true });
         const maxRewardCap = parseFloat(core.getInput('max_reward_cap') || '1000');
+        const fallbackAmount = core.getInput('tea_amount'); // Optional fallback
 
         // Get private key from environment (GitHub Secret)
         const privateKey = process.env.TEA_PRIVATE_KEY;
@@ -67,9 +68,42 @@ async function run(): Promise<void> {
             return;
         }
 
+        // ========================================
+        // 3. GET GITHUB TOKEN AND OCTOKIT
+        // ========================================
+
+        const token = process.env.GITHUB_TOKEN || core.getInput('github_token');
+        if (!token) {
+            core.setFailed('❌ GITHUB_TOKEN not found. This should be automatically provided by GitHub Actions.');
+            return;
+        }
+
+        const octokit = github.getOctokit(token);
+
+        // ========================================
+        // 4. EXTRACT BOUNTY AMOUNT FROM ISSUE
+        // ========================================
+
+        let teaAmount: number | null = await getBountyAmountFromIssue(octokit, pr.body);
+
+        // If no bounty found in issue, use fallback from input
+        if (teaAmount === null) {
+            if (fallbackAmount) {
+                teaAmount = parseFloat(fallbackAmount);
+                core.info(`ℹ️  Using fallback amount from workflow input: ${teaAmount} TEA`);
+            } else {
+                core.setFailed(
+                    '❌ No bounty amount found. Please either:\n' +
+                    '   1. Add "tea-reward: X" to the linked issue body, OR\n' +
+                    '   2. Set the "tea_amount" input in your workflow file'
+                );
+                return;
+            }
+        }
+
         // Validate amount
         if (isNaN(teaAmount) || teaAmount <= 0) {
-            core.setFailed(`❌ Invalid tea_amount: ${teaAmount}. Must be a positive number.`);
+            core.setFailed(`❌ Invalid bounty amount: ${teaAmount}. Must be a positive number.`);
             return;
         }
 
@@ -85,23 +119,15 @@ async function run(): Promise<void> {
         core.info(`💰 Reward amount: ${teaAmount} TEA (max cap: ${maxRewardCap})`);
 
         // ========================================
-        // 3. EXTRACT AND VALIDATE WALLET ADDRESS
+        // 5. EXTRACT AND VALIDATE WALLET ADDRESS
         // ========================================
 
         const walletAddress = extractWalletAddress(pr.body);
         core.info(`📍 Recipient wallet: ${walletAddress}`);
 
         // ========================================
-        // 4. CHECK FOR DOUBLE PAYOUT
+        // 6. CHECK FOR DOUBLE PAYOUT
         // ========================================
-
-        const token = process.env.GITHUB_TOKEN || core.getInput('github_token');
-        if (!token) {
-            core.setFailed('❌ GITHUB_TOKEN not found. This should be automatically provided by GitHub Actions.');
-            return;
-        }
-
-        const octokit = github.getOctokit(token);
 
         const alreadyPaid = await hasAlreadyBeenPaid(octokit, prNumber);
         if (alreadyPaid) {
@@ -110,7 +136,7 @@ async function run(): Promise<void> {
         }
 
         // ========================================
-        // 5. SEND TEA TOKENS
+        // 7. SEND TEA TOKENS
         // ========================================
 
         core.info('🚀 Initiating token transfer...');
@@ -128,7 +154,7 @@ async function run(): Promise<void> {
         core.info(`   Recipient: ${result.recipient}`);
 
         // ========================================
-        // 6. POST COMMENT AND ADD LABEL
+        // 8. POST COMMENT AND ADD LABEL
         // ========================================
 
         // Optionally get block explorer URL from input
@@ -145,7 +171,7 @@ async function run(): Promise<void> {
         await addPaidLabel(octokit, prNumber);
 
         // ========================================
-        // 7. SET OUTPUTS
+        // 9. SET OUTPUTS
         // ========================================
 
         core.setOutput('tx_hash', result.txHash);
