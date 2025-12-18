@@ -35,6 +35,11 @@ on:
   pull_request:
     types: [closed]
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   send-reward:
     # Only run if PR was actually merged
