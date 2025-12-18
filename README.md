@@ -44,7 +44,7 @@ jobs:
     
     steps:
       - name: Send TEA Reward
-        uses: isonnymichael/tea-bounty-action@v1
+        uses: isonnymichael/tea-bounty@v1
         with:
           rpc_url: ${{ secrets.RPC_URL }}
           target_branch: 'main'

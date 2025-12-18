@@ -12,7 +12,7 @@ jobs:
     
     steps:
       - name: Send TEA Reward
-        uses: isonnymichael/tea-bounty-action@v1
+        uses: isonnymichael/tea-bounty@v1
         with:
           # Bounty amount is extracted from the linked issue's "tea-reward: X" pattern
           # You can optionally set a fallback amount here:
