@@ -22,7 +22,7 @@ jobs:
           rpc_url: ${{ secrets.RPC_URL }}
           
           # Only reward PRs merged into this branch
-          target_branch: 'main'
+          target_branch: 'master'
           
           # Maximum allowed reward (safety limit)
           max_reward_cap: '1000'
@@ -33,6 +33,3 @@ jobs:
         env:
           # Private key of hot wallet (CRITICAL: use GitHub Secrets)
           TEA_PRIVATE_KEY: ${{ secrets.TEA_PRIVATE_KEY }}
-          
-          # GitHub token (automatically provided)
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -13,9 +13,13 @@ inputs:
     description: 'Tea Protocol RPC URL'
     required: true
   target_branch:
-    description: 'Target branch to check for merged PRs (default: main)'
+    description: 'Target branch to check for merged PRs (default: master)'
     required: false
-    default: 'main'
+    default: 'master'
+  github_token:
+    description: "GitHub token for API access"
+    required: true
+    default: ${{ github.token }}
   max_reward_cap:
     description: 'Maximum allowed reward amount (default: 1000)'
     required: false

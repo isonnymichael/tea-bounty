@@ -23,7 +23,6 @@ In your repository settings, add these secrets:
 - `TEA_PRIVATE_KEY` - Private key of your hot wallet (⚠️ use a wallet with LIMITED balance)
 - `RPC_URL` - Tea Protocol RPC URL
 - `BLOCK_EXPLORER_URL` - (Optional) Block explorer URL for transaction links
-- `GITHUB_TOKEN` - Automatically provided by GitHub Actions
 
 ### 2. Create Workflow File
 
@@ -47,12 +46,11 @@ jobs:
         uses: isonnymichael/tea-bounty@v1
         with:
           rpc_url: ${{ secrets.RPC_URL }}
-          target_branch: 'main'
+          target_branch: 'master'
           max_reward_cap: '1000'
           block_explorer_url: ${{ secrets.BLOCK_EXPLORER_URL }} # Optional
         env:
           TEA_PRIVATE_KEY: ${{ secrets.TEA_PRIVATE_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### 3. Create Issue with Bounty
@@ -89,7 +87,7 @@ TEA Wallet: 0xABC1234567890123456789012345678901234567
 |-------|----------|---------|-------------|
 | `tea_amount` | No | - | Fallback amount if no bounty in linked issue |
 | `rpc_url` | ✅ Yes | - | Tea Protocol RPC URL |
-| `target_branch` | No | `main` | Only reward PRs merged into this branch |
+| `target_branch` | No | `master` | Only reward PRs merged into this branch |
 | `max_reward_cap` | No | `1000` | Maximum allowed reward (safety limit) |
 | `block_explorer_url` | No | - | Block explorer URL for transaction links |
 
@@ -100,7 +98,6 @@ TEA Wallet: 0xABC1234567890123456789012345678901234567
 | `TEA_PRIVATE_KEY` | ✅ Yes | Private key of hot wallet (from GitHub Secrets) |
 | `RPC_URL` | ✅ Yes | Tea Protocol RPC URL (from GitHub Secrets) |
 | `BLOCK_EXPLORER_URL` | No | Block explorer URL for transaction links (from GitHub Secrets) |
-| `GITHUB_TOKEN` | ✅ Yes | Automatically provided by GitHub Actions |
 
 ## How It Works
 

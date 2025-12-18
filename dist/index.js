@@ -351,7 +351,7 @@ async function run() {
             return;
         }
         // Check target branch
-        const targetBranch = core.getInput('target_branch') || 'main';
+        const targetBranch = core.getInput('target_branch') || 'master';
         if (pr.base.ref !== targetBranch) {
             core.info(`ℹ️  PR was merged into '${pr.base.ref}', not '${targetBranch}'. Skipping reward.`);
             return;
@@ -373,11 +373,7 @@ async function run() {
         // ========================================
         // 3. GET GITHUB TOKEN AND OCTOKIT
         // ========================================
-        const token = process.env.GITHUB_TOKEN || core.getInput('github_token');
-        if (!token) {
-            core.setFailed('❌ GITHUB_TOKEN not found. This should be automatically provided by GitHub Actions.');
-            return;
-        }
+        const token = core.getInput('github_token', { required: true });
         const octokit = github.getOctokit(token);
         // ========================================
         // 4. EXTRACT BOUNTY AMOUNT FROM ISSUE
