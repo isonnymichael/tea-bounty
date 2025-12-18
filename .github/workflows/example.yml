@@ -1,0 +1,37 @@
+name: TEA Bounty Rewards
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  send-reward:
+    # Only run if PR was actually merged (not just closed)
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Send TEA Reward
+        uses: yourusername/tea-bounty-action@v1
+        with:
+          # Amount of TEA tokens to send
+          tea_amount: '100'
+          
+          # Tea Protocol RPC URL (use a secret for production)
+          rpc_url: ${{ secrets.RPC_URL }}
+          
+          # Only reward PRs merged into this branch
+          target_branch: 'main'
+          
+          # Maximum allowed reward (safety limit)
+          max_reward_cap: '1000'
+          
+          # Optional: Block explorer URL for transaction links
+          block_explorer_url: ${{ secrets.BLOCK_EXPLORER_URL }}
+        
+        env:
+          # Private key of hot wallet (CRITICAL: use GitHub Secrets)
+          TEA_PRIVATE_KEY: ${{ secrets.TEA_PRIVATE_KEY }}
+          
+          # GitHub token (automatically provided)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

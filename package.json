@@ -1,0 +1,36 @@
+{
+  "name": "tea-bounty-action",
+  "version": "1.0.0",
+  "description": "Minimal GitHub Action to send TEA token rewards when PRs are merged",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc && ncc build lib/main.js -o dist --source-map --license licenses.txt",
+    "format": "prettier --write '**/*.ts'",
+    "format-check": "prettier --check '**/*.ts'",
+    "package": "ncc build lib/main.js -o dist --source-map --license licenses.txt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/tea-bounty-action.git"
+  },
+  "keywords": [
+    "github-action",
+    "web3",
+    "tea",
+    "bounty",
+    "rewards"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/github": "^6.0.0",
+    "ethers": "^6.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@vercel/ncc": "^0.38.1",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,29 @@
+name: 'TEA Bounty Action'
+description: 'Send TEA token rewards automatically when a Pull Request is merged'
+author: 'Your Name'
+branding:
+  icon: 'gift'
+  color: 'green'
+
+inputs:
+  tea_amount:
+    description: 'Amount of TEA tokens to send as reward'
+    required: true
+  rpc_url:
+    description: 'Tea Protocol RPC URL'
+    required: true
+  target_branch:
+    description: 'Target branch to check for merged PRs (default: main)'
+    required: false
+    default: 'main'
+  max_reward_cap:
+    description: 'Maximum allowed reward amount (default: 1000)'
+    required: false
+    default: '1000'
+  block_explorer_url:
+    description: 'Block explorer URL for transaction links'
+    required: false
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
